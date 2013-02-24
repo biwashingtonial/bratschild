@@ -1,0 +1,326 @@
+<?php
+/**
+ * @file
+ * Code for the Invite feature.
+ */
+
+include_once 'invite.features.inc';
+
+/**
+ * Implements hook_init().
+ */
+function invite_init() {
+  if (isset($_GET['rsvp']) && ($invite_id = _invite_id_decode($_GET['rsvp']))) {
+    if ($_SESSION['invite_id'] != $invite_id) {
+      // update this invite to 'responded' if we're seeing it answered for the first time
+      $invite = node_load($invite_id);
+      if ($invite->field_invite_rsvp[$invite->language][0]['value'] != 'attending' && $invite->field_invite_rsvp[$invite->language][0]['value'] != 'regrets') {
+        $invite->field_invite_rsvp[$invite->language][0]['value'] = 'responded';
+        node_save($invite);
+      }
+    }
+    $_SESSION['invite_id'] = $invite_id;
+  }
+  if (arg(0) == 'node' && arg(1) && arg(2) != 'edit') {
+    // do invites exist for this node (i.e., is this node an event)?
+    $invite_count = db_query(
+      "SELECT COUNT(*) 
+        FROM {field_data_field_invite_event} ie
+        INNER JOIN {node} n ON n.vid=ie.revision_id
+        WHERE field_invite_event_target_id=:viewed_nid
+      ;",
+      array(':viewed_nid' => arg(1))
+    )->fetchField();
+    if ($invite_count > 0) {
+      context_set('context', 'invite_count', $invite_count);
+    }
+  }
+}
+
+/**
+ * Implements hook_block_info().
+ */
+function invite_block_info() {
+  $blocks['rsvp'] = array(
+    'info' => t('User RSVP'),
+    'cache' => DRUPAL_CACHE_PER_USER,
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function invite_block_view($delta = '') {
+  switch ($delta) {
+    case 'rsvp':
+      if (arg(0) == 'node' && arg(1) && ($node = node_load(arg(1)))) {
+        if (isset($_SESSION['invite_id'])) {
+          $invite_node = node_load($_SESSION['invite_id']);
+        }
+        return array(
+          'subject' => t('My RSVP'),
+          'content' => array(
+            '#theme' => 'invite_rsvp_block',
+            '#event' => $node,
+            '#invite' => isset($invite_node) ? $invite_node : NULL,
+          ),
+        );
+      }
+      else {
+        return array(
+          'content' => t('Not viewing a node.'),
+        );
+      }
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function invite_theme($existing, $type, $theme, $path) {
+  return array(
+    'invite_rsvp_block' => array(
+      'variables' => array(
+        'event' => NULL,
+        'invite' => NULL,
+        'rsvp' => NULL,
+        'invite_name' => NULL,
+        'form' => NULL,
+        'different_event' => TRUE,
+      ),
+      'template' => 'invite-rsvp-block',
+      'path' => drupal_get_path('module', 'invite') . '/template',
+    ),
+  );
+}
+
+/**
+ * Template preprocessor for invite_rsvp_block.
+ */
+function template_preprocess_invite_rsvp_block(&$variables) {
+  if (($event = $variables['event']) && ($invite = $variables['invite'])) {
+    // if the user's invite matches the event node being viewed, include the RSVP status and/or form
+    if ($event->nid == $invite->field_invite_event[$invite->language][0]['nid']) {
+      $variables['rsvp'] = $invite->field_invite_rsvp[$invite->language][0]['value'];
+      $variables['invite_name'] =
+        $invite->field_invite_name_first[$invite->language][0]['value'] . ' '
+        . $invite->field_invite_name_last[$invite->language][0]['value']
+      ;
+      if ($variables['rsvp'] != 'attending' && $variables['rsvp'] != 'regrets') {
+        $variables['form'] = drupal_get_form('invite_rsvp_form', $variables['invite']);
+      }
+    }
+    else {
+      $variables['different_event'] = TRUE;
+    }
+  }
+}
+
+/**
+ * Form builder for the RSVP form.
+ */
+function invite_rsvp_form($form, $form_state, $invite) {
+  $form['#invite'] = $invite;
+  $form['field_invite_name_first'] = array(
+    '#tree' => TRUE,
+    $invite->language => array(
+      'value' => array(
+        '#title' => t('First Name(s)'),
+        '#type' => 'textfield',
+        '#default_value' => $invite->field_invite_name_first[$invite->language][0]['value'],
+        '#required' => TRUE,
+      ),
+    ),
+  );
+  $form['field_invite_name_last'] = array(
+    '#tree' => TRUE,
+    $invite->language => array(
+      'value' => array(
+        '#title' => t('Last Name(s)'),
+        '#type' => 'textfield',
+        '#default_value' => $invite->field_invite_name_last[$invite->language][0]['value'],
+        '#required' => TRUE,
+      ),
+    ),
+  );
+  $form['field_invite_rsvp'] = array(
+    '#tree' => TRUE,
+    $invite->language => array(
+      'value' => array(
+        '#title' => t('RSVP'),
+        '#type' => 'radios',
+        '#options' => array('attending' => t('Attending'), 'regrets' => t('Not Attending')),
+        '#required' => TRUE,
+      ),
+    ),
+  );
+  $form['field_invite_attendee_count'] = array(
+    '#tree' => TRUE,
+    $invite->language => array(
+      'value' => array(
+        '#title' => t('How Many Coming?'),
+        '#type' => 'textfield',
+        '#default_value' => $invite->field_invite_attendee_count[$invite->language][0]['value'],
+        '#required' => TRUE,
+      ),
+    ),
+  );
+  $form['field_invite_email'] = array(
+    '#tree' => TRUE,
+    $invite->language => array(
+      'email' => array(
+        '#title' => t('Best Email For You'),
+        '#type' => 'textfield',
+        '#default_value' => $invite->field_invite_email[$invite->language][0]['email'],
+        '#required' => TRUE,
+      ),
+    ),
+  );
+  $form['field_invite_contributions'] = array(
+    '#tree' => TRUE,
+    $invite->language => array(
+      'value' => array(
+        '#title' => t('Contributions'),
+        '#type' => 'textarea',
+        '#rows' => 2,
+        '#description' => t('Is there anything special you want to offer to bring or to help out with?'),
+      ),
+    ),
+  );
+  $form['field_invite_rsvp_notes'] = array(
+    '#tree' => TRUE,
+    $invite->language => array(
+      'value' => array(
+        '#title' => t('Notes'),
+        '#type' => 'textarea',
+        '#rows' => 2,
+        '#description' => t('Anything you want us to know?'),
+      ),
+    ),
+  );
+  $form['peanut_gallery'] = array(
+    '#title' => t('Comment to Everyone'),
+    '#type' => 'textarea',
+    '#rows' => 2,
+    '#description' => t('Want to share anything with the crowd?'),
+  );
+  
+  return $form;
+}
+
+/**
+ * Implements hook_node_load().
+ */
+function invite_node_insert($node) {
+  if ($node->type == 'invite') {
+    // is there an RSVP key?
+    if (empty($node->field_invite_rsvp_key[$node->language][0]['value'])) {
+      // no, so generate one
+      $nid_encoded = _invite_id_encode($node->nid);
+      $node->field_invite_rsvp_key[$node->language][0]['value'] = $nid_encoded;
+      field_attach_update('node', $node);  // hate to save all the field data right after node_save() has already done it, but we need the nid so is there any other way?
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function invite_form_invite_node_form_alter(&$form, &$form_state, $form_id) {
+  // for new Invite node, provide bulk entry option
+  if (empty($form['#node']->nid)) {
+    $offset = array_search('node_form_submit', $form['actions']['submit']['#submit']) || 0;
+    array_splice($form['actions']['submit']['#submit'], $offset, 1, 'invite_invite_node_form_submit');
+    array_unshift($form['#validate'], 'invite_invite_node_form_validate');
+    $form['use_bulk'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Load Names and Emails in Bulk'),
+    );
+    $form['bulk_csv'] = array(
+      '#type' => 'textarea',
+      '#title' => t('Bulk Names and Emails'),
+      '#description' => t('Enter each CSV line: last name,first name,email'),
+      '#rows' => 5,
+    );
+    // First and Last Name fields may need to skip validation
+    $form['field_invite_name_first'][$form['language']['#value']][0]['value']['#validated'] = TRUE;
+    $form['field_invite_name_last'][$form['language']['#value']][0]['value']['#validated'] = TRUE;
+  }
+}
+
+function invite_invite_node_form_validate($form, &$form_state) {
+  if (!$form_state['values']['use_bulk']) {
+    // validate First and Last Name fields
+    unset($form['field_invite_name_first'][$form['language']['#value']][0]['value']['#validated']);
+    _form_validate($form['field_invite_name_first'], $form_state, $form['#form_id']);
+    unset($form['field_invite_name_last'][$form['language']['#value']][0]['value']['#validated']);
+    _form_validate($form['field_invite_name_last'], $form_state, $form['#form_id']);
+  }
+  else {
+    // process the CSV now and make sure it's good
+    $bulk_rows = array();
+    foreach (preg_split("|\\n|", $form_state['values']['bulk_csv']) as $row_csv) {
+      $row = str_getcsv($row_csv, ',', '"');
+      if (!empty($row[0]) && !empty($row[1])) {
+        $bulk_rows[] = $row;
+      }
+    }
+    if (empty($bulk_rows)) {
+      form_set_error('bulk_csv', t('At least one row of CSV is required for bulk loading. First and Last Namees are required for each row.'));
+    } else {
+      $form_state['bulk_rows'] = $bulk_rows;
+    }
+  }
+}
+
+function invite_invite_node_form_submit($form, &$form_state) {
+  if ($form_state['values']['use_bulk']) {  // bulk save
+    // create an template invite node to clone
+    $form_state['values']['field_invite_name_first'][$form_state['values']['language']][0]['value'] = 'Foo';
+    $form_state['values']['field_invite_name_last'][$form_state['values']['language']][0]['value'] = 'Bar';
+    $form_state['values']['field_invite_email'][$form_state['values']['language']][0]['email'] = 'foo@bar.com';
+    $template_node = $form_state['node'];
+    entity_form_submit_build_entity('node', $template_node, $form, $form_state);
+    node_submit($template_node);
+    
+    // iterate over bulk rows, creating a clone of the template node for each, filling in the names and email, and saving
+    $count = 0;
+    foreach ($form_state['bulk_rows'] as $row) {
+      $node = clone($template_node);
+      $node->field_invite_name_last[$node->language][0]['value'] = $row[0];
+      $node->field_invite_name_first[$node->language][0]['value'] = $row[1];
+      $node->field_invite_email[$node->language][0]['email'] = $row[2];
+      
+      node_save($node);
+      $node_link = l(t('view'), 'node/' . $node->nid);
+      $watchdog_args = array('@type' => $node->type, '%title' => $node->title);
+      watchdog('content', '@type: added %title.', $watchdog_args, WATCHDOG_NOTICE, $node_link);
+      
+      $count++;
+    }
+    drupal_set_message(t('@count invites were created.', array('@count' => $count)));
+    cache_clear_all();
+  }
+  else {  // standard save
+    node_form_submit($form, $form_state);
+  }
+}
+
+/**
+ * Utility functions
+ */
+function _invite_id_encode($id) {
+  $id_encoded = $id * 3571;  // make it longer (3571 is prime)
+  $id_encoded = substr($id_encoded, -1) . $id_encoded;  // make the front of the string wiggle
+  $id_encoded = base64_encode($id_encoded);  // base64 stringify
+  //@TODO: encrypt here
+  return $id_encoded;
+}
+function _invite_id_decode($id_encoded) {
+  //@TODO: decrypt here
+  $id_decoded = base64_decode($id_decoded);
+  $id_decoded = substr($id_decoded, 1); // lop off redundant first character
+  $id_decoded = $id_decoded / 3571;
+  return is_int($id_decoded) ? $id_decoded : FALSE;
+}
