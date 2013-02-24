@@ -36,13 +36,20 @@ function invite_field_default_fields() {
           'label' => 'above',
           'module' => 'number',
           'settings' => array(
+            'click_to_edit' => 1,
             'decimal_separator' => '.',
+            'empty_text' => '',
+            'fallback_format' => 'number_integer',
+            'fallback_settings' => array(
+              'prefix_suffix' => 1,
+              'thousand_separator' => ',',
+            ),
             'prefix_suffix' => TRUE,
             'scale' => 0,
             'thousand_separator' => ' ',
           ),
           'type' => 'number_integer',
-          'weight' => 8,
+          'weight' => '8',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -110,7 +117,7 @@ function invite_field_default_fields() {
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => 7,
+          'weight' => '7',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -164,9 +171,14 @@ function invite_field_default_fields() {
         'default' => array(
           'label' => 'above',
           'module' => 'email',
-          'settings' => array(),
+          'settings' => array(
+            'click_to_edit' => 1,
+            'empty_text' => '',
+            'fallback_format' => 'email_default',
+            'fallback_settings' => array(),
+          ),
           'type' => 'email_default',
-          'weight' => 10,
+          'weight' => '10',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -252,7 +264,7 @@ function invite_field_default_fields() {
             'link' => FALSE,
           ),
           'type' => 'entityreference_label',
-          'weight' => 2,
+          'weight' => '2',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -320,7 +332,7 @@ function invite_field_default_fields() {
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => 6,
+          'weight' => '6',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -387,9 +399,14 @@ function invite_field_default_fields() {
         'default' => array(
           'label' => 'above',
           'module' => 'text',
-          'settings' => array(),
+          'settings' => array(
+            'click_to_edit' => 1,
+            'empty_text' => '',
+            'fallback_format' => 'text_plain',
+            'fallback_settings' => array(),
+          ),
           'type' => 'text_default',
-          'weight' => 0,
+          'weight' => '0',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -456,9 +473,14 @@ function invite_field_default_fields() {
         'default' => array(
           'label' => 'above',
           'module' => 'text',
-          'settings' => array(),
+          'settings' => array(
+            'click_to_edit' => 1,
+            'empty_text' => '',
+            'fallback_format' => 'text_plain',
+            'fallback_settings' => array(),
+          ),
           'type' => 'text_default',
-          'weight' => 1,
+          'weight' => '1',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -529,9 +551,14 @@ function invite_field_default_fields() {
         'default' => array(
           'label' => 'above',
           'module' => 'list',
-          'settings' => array(),
+          'settings' => array(
+            'click_to_edit' => 1,
+            'empty_text' => '',
+            'fallback_format' => 'list_default',
+            'fallback_settings' => array(),
+          ),
           'type' => 'list_default',
-          'weight' => 3,
+          'weight' => '3',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -553,75 +580,6 @@ function invite_field_default_fields() {
         'settings' => array(),
         'type' => 'options_buttons',
         'weight' => '5',
-      ),
-    ),
-  );
-
-  // Exported field: 'node-invite-field_invite_rsvp_key'.
-  $fields['node-invite-field_invite_rsvp_key'] = array(
-    'field_config' => array(
-      'active' => '1',
-      'cardinality' => '1',
-      'deleted' => '0',
-      'entity_types' => array(),
-      'field_name' => 'field_invite_rsvp_key',
-      'foreign keys' => array(
-        'format' => array(
-          'columns' => array(
-            'format' => 'format',
-          ),
-          'table' => 'filter_format',
-        ),
-      ),
-      'indexes' => array(
-        'format' => array(
-          0 => 'format',
-        ),
-      ),
-      'locked' => '0',
-      'module' => 'text',
-      'settings' => array(
-        'max_length' => '255',
-      ),
-      'translatable' => '0',
-      'type' => 'text',
-    ),
-    'field_instance' => array(
-      'bundle' => 'invite',
-      'default_value' => NULL,
-      'deleted' => '0',
-      'description' => '',
-      'display' => array(
-        'default' => array(
-          'label' => 'above',
-          'module' => 'text',
-          'settings' => array(),
-          'type' => 'text_default',
-          'weight' => 9,
-        ),
-        'teaser' => array(
-          'label' => 'above',
-          'settings' => array(),
-          'type' => 'hidden',
-          'weight' => 0,
-        ),
-      ),
-      'entity_type' => 'node',
-      'field_name' => 'field_invite_rsvp_key',
-      'label' => 'RSVP Key',
-      'required' => 0,
-      'settings' => array(
-        'text_processing' => '0',
-        'user_register_form' => FALSE,
-      ),
-      'widget' => array(
-        'active' => 1,
-        'module' => 'text',
-        'settings' => array(
-          'size' => '60',
-        ),
-        'type' => 'text_textfield',
-        'weight' => '9',
       ),
     ),
   );
@@ -664,7 +622,7 @@ function invite_field_default_fields() {
           'module' => 'text',
           'settings' => array(),
           'type' => 'text_default',
-          'weight' => 5,
+          'weight' => '5',
         ),
         'teaser' => array(
           'label' => 'above',
@@ -703,7 +661,6 @@ function invite_field_default_fields() {
   t('Host Notes');
   t('Last Name');
   t('RSVP');
-  t('RSVP Key');
   t('RSVP Notes');
 
   return $fields;
