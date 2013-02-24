@@ -11,8 +11,8 @@ include_once 'invite.features.inc';
  */
 function invite_init() {
   if (isset($_GET['rsvp']) && ($invite_id = _invite_id_decode($_GET['rsvp']))) {
-    if ($_SESSION['invite_id'] != $invite_id) {
-      // update this invite to 'responded' if we're seeing it answered for the first time
+    if (!isset($_SESSION['invite_id']) || $_SESSION['invite_id'] != $invite_id) {
+      // update this invite to 'responded' if it's being answered for the first time
       $invite = node_load($invite_id);
       if ($invite->field_invite_rsvp[$invite->language][0]['value'] != 'attending' && $invite->field_invite_rsvp[$invite->language][0]['value'] != 'regrets') {
         $invite->field_invite_rsvp[$invite->language][0]['value'] = 'responded';
@@ -101,7 +101,7 @@ function invite_theme($existing, $type, $theme, $path) {
 function template_preprocess_invite_rsvp_block(&$variables) {
   if (($event = $variables['event']) && ($invite = $variables['invite'])) {
     // if the user's invite matches the event node being viewed, include the RSVP status and/or form
-    if ($event->nid == $invite->field_invite_event[$invite->language][0]['nid']) {
+    if ($event->nid == $invite->field_invite_event[$invite->language][0]['target_id']) {
       $variables['rsvp'] = $invite->field_invite_rsvp[$invite->language][0]['value'];
       $variables['invite_name'] =
         $invite->field_invite_name_first[$invite->language][0]['value'] . ' '
@@ -110,6 +110,7 @@ function template_preprocess_invite_rsvp_block(&$variables) {
       if ($variables['rsvp'] != 'attending' && $variables['rsvp'] != 'regrets') {
         $variables['form'] = drupal_get_form('invite_rsvp_form', $variables['invite']);
       }
+      $variables['different_event'] = FALSE;
     }
     else {
       $variables['different_event'] = TRUE;
@@ -125,77 +126,91 @@ function invite_rsvp_form($form, $form_state, $invite) {
   $form['field_invite_name_first'] = array(
     '#tree' => TRUE,
     $invite->language => array(
-      'value' => array(
-        '#title' => t('First Name(s)'),
-        '#type' => 'textfield',
-        '#default_value' => $invite->field_invite_name_first[$invite->language][0]['value'],
-        '#required' => TRUE,
+      0 => array(
+        'value' => array(
+          '#title' => t('First Name(s)'),
+          '#type' => 'textfield',
+          '#default_value' => $invite->field_invite_name_first[$invite->language][0]['value'],
+          '#required' => TRUE,
+        ),
       ),
     ),
   );
   $form['field_invite_name_last'] = array(
     '#tree' => TRUE,
     $invite->language => array(
-      'value' => array(
-        '#title' => t('Last Name(s)'),
-        '#type' => 'textfield',
-        '#default_value' => $invite->field_invite_name_last[$invite->language][0]['value'],
-        '#required' => TRUE,
+      0 => array(
+        'value' => array(
+          '#title' => t('Last Name(s)'),
+          '#type' => 'textfield',
+          '#default_value' => $invite->field_invite_name_last[$invite->language][0]['value'],
+          '#required' => TRUE,
+        ),
       ),
     ),
   );
   $form['field_invite_rsvp'] = array(
     '#tree' => TRUE,
     $invite->language => array(
-      'value' => array(
-        '#title' => t('RSVP'),
-        '#type' => 'radios',
-        '#options' => array('attending' => t('Attending'), 'regrets' => t('Not Attending')),
-        '#required' => TRUE,
+      0 => array(
+        'value' => array(
+          '#title' => t('RSVP'),
+          '#type' => 'radios',
+          '#options' => array('attending' => t('Attending'), 'regrets' => t('Not Attending')),
+          '#required' => TRUE,
+        ),
       ),
     ),
   );
   $form['field_invite_attendee_count'] = array(
     '#tree' => TRUE,
     $invite->language => array(
-      'value' => array(
-        '#title' => t('How Many Coming?'),
-        '#type' => 'textfield',
-        '#default_value' => $invite->field_invite_attendee_count[$invite->language][0]['value'],
-        '#required' => TRUE,
+      0 => array(
+        'value' => array(
+          '#title' => t('How Many Coming?'),
+          '#type' => 'textfield',
+          '#default_value' => empty($invite->field_invite_attendee_count) ? 1 : $invite->field_invite_attendee_count[$invite->language][0]['value'],
+          '#required' => TRUE,
+        ),
       ),
     ),
   );
   $form['field_invite_email'] = array(
     '#tree' => TRUE,
     $invite->language => array(
-      'email' => array(
-        '#title' => t('Best Email For You'),
-        '#type' => 'textfield',
-        '#default_value' => $invite->field_invite_email[$invite->language][0]['email'],
-        '#required' => TRUE,
+      0 => array(
+        'email' => array(
+          '#title' => t('Best Email For You'),
+          '#type' => 'textfield',
+          '#default_value' => $invite->field_invite_email[$invite->language][0]['email'],
+          '#required' => TRUE,
+        ),
       ),
     ),
   );
   $form['field_invite_contributions'] = array(
     '#tree' => TRUE,
     $invite->language => array(
-      'value' => array(
-        '#title' => t('Contributions'),
-        '#type' => 'textarea',
-        '#rows' => 2,
-        '#description' => t('Is there anything special you want to offer to bring or to help out with?'),
+      0 => array(
+        'value' => array(
+          '#title' => t('Contributions'),
+          '#type' => 'textarea',
+          '#rows' => 2,
+          '#description' => t('Is there anything special you want to offer to bring or to help out with?'),
+        ),
       ),
     ),
   );
   $form['field_invite_rsvp_notes'] = array(
     '#tree' => TRUE,
     $invite->language => array(
-      'value' => array(
-        '#title' => t('Notes'),
-        '#type' => 'textarea',
-        '#rows' => 2,
-        '#description' => t('Anything you want us to know?'),
+      0 => array(
+        'value' => array(
+          '#title' => t('Notes to Hosts'),
+          '#type' => 'textarea',
+          '#rows' => 2,
+          '#description' => t('Anything you want us to know?'),
+        ),
       ),
     ),
   );
@@ -205,23 +220,22 @@ function invite_rsvp_form($form, $form_state, $invite) {
     '#rows' => 2,
     '#description' => t('Want to share anything with the crowd?'),
   );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Send RSVP'),
+  );
   
+  drupal_add_js(drupal_get_path('module', 'invite') . '/js/rsvp-form.js');
   return $form;
 }
 
-/**
- * Implements hook_node_load().
- */
-function invite_node_insert($node) {
-  if ($node->type == 'invite') {
-    // is there an RSVP key?
-    if (empty($node->field_invite_rsvp_key[$node->language][0]['value'])) {
-      // no, so generate one
-      $nid_encoded = _invite_id_encode($node->nid);
-      $node->field_invite_rsvp_key[$node->language][0]['value'] = $nid_encoded;
-      field_attach_update('node', $node);  // hate to save all the field data right after node_save() has already done it, but we need the nid so is there any other way?
-    }
-  }
+function invite_rsvp_form_submit($form, &$form_state) {
+  // save invite data to node
+  $invite = (object) array_merge((array) $form['#invite'], $form_state['values']);
+  $invite->revision = 1;  // create new revision
+  node_save($invite);
+  
+  //@TODO: process $form_state['values']['peanut_gallery']
 }
 
 /**
@@ -246,6 +260,8 @@ function invite_form_invite_node_form_alter(&$form, &$form_state, $form_id) {
     // First and Last Name fields may need to skip validation
     $form['field_invite_name_first'][$form['language']['#value']][0]['value']['#validated'] = TRUE;
     $form['field_invite_name_last'][$form['language']['#value']][0]['value']['#validated'] = TRUE;
+    // use js to show/hide fields on bulk toggle
+    drupal_add_js(drupal_get_path('module', 'invite') . '/js/invite-node-form.js');
   }
 }
 
@@ -319,7 +335,7 @@ function _invite_id_encode($id) {
 }
 function _invite_id_decode($id_encoded) {
   //@TODO: decrypt here
-  $id_decoded = base64_decode($id_decoded);
+  $id_decoded = base64_decode($id_encoded);
   $id_decoded = substr($id_decoded, 1); // lop off redundant first character
   $id_decoded = $id_decoded / 3571;
   return is_int($id_decoded) ? $id_decoded : FALSE;
