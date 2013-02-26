@@ -323,12 +323,6 @@ function invite_views_default_views() {
   $handler->display->display_options['header']['area_text_custom']['field'] = 'area_text_custom';
   $handler->display->display_options['header']['area_text_custom']['content'] = 'Attending';
   $handler->display->display_options['defaults']['relationships'] = FALSE;
-  /* Relationship: Entity Reference: Referenced Entity */
-  $handler->display->display_options['relationships']['field_invite_event_target_id']['id'] = 'field_invite_event_target_id';
-  $handler->display->display_options['relationships']['field_invite_event_target_id']['table'] = 'field_data_field_invite_event';
-  $handler->display->display_options['relationships']['field_invite_event_target_id']['field'] = 'field_invite_event_target_id';
-  $handler->display->display_options['relationships']['field_invite_event_target_id']['label'] = 'Event Node (referenced by Invite)';
-  $handler->display->display_options['relationships']['field_invite_event_target_id']['required'] = TRUE;
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Bulk operations: Content */
   $handler->display->display_options['fields']['views_bulk_operations']['id'] = 'views_bulk_operations';
@@ -501,32 +495,19 @@ function invite_views_default_views() {
   $handler->display->display_options['fields']['edit_node']['label'] = '';
   $handler->display->display_options['fields']['edit_node']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['edit_node']['text'] = 'Edit';
-  /* Field: Global: PHP */
-  $handler->display->display_options['fields']['php']['id'] = 'php';
-  $handler->display->display_options['fields']['php']['table'] = 'views';
-  $handler->display->display_options['fields']['php']['field'] = 'php';
-  $handler->display->display_options['fields']['php']['label'] = 'Encoded Invite ID';
-  $handler->display->display_options['fields']['php']['exclude'] = TRUE;
-  $handler->display->display_options['fields']['php']['element_label_colon'] = FALSE;
-  $handler->display->display_options['fields']['php']['use_php_setup'] = 0;
-  $handler->display->display_options['fields']['php']['php_value'] = 'return urlencode(_invite_id_encode($data->nid));';
-  $handler->display->display_options['fields']['php']['use_php_click_sortable'] = '0';
-  $handler->display->display_options['fields']['php']['php_click_sortable'] = '';
-  /* Field: Content: Nid */
-  $handler->display->display_options['fields']['nid']['id'] = 'nid';
-  $handler->display->display_options['fields']['nid']['table'] = 'node';
-  $handler->display->display_options['fields']['nid']['field'] = 'nid';
-  $handler->display->display_options['fields']['nid']['relationship'] = 'field_invite_event_target_id';
-  $handler->display->display_options['fields']['nid']['label'] = 'Event Nid';
-  $handler->display->display_options['fields']['nid']['exclude'] = TRUE;
+  /* Field: Content: RSVP Link */
+  $handler->display->display_options['fields']['field_invite_rsvp_link']['id'] = 'field_invite_rsvp_link';
+  $handler->display->display_options['fields']['field_invite_rsvp_link']['table'] = 'field_data_field_invite_rsvp_link';
+  $handler->display->display_options['fields']['field_invite_rsvp_link']['field'] = 'field_invite_rsvp_link';
+  $handler->display->display_options['fields']['field_invite_rsvp_link']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['field_invite_rsvp_link']['alter']['strip_tags'] = TRUE;
+  $handler->display->display_options['fields']['field_invite_rsvp_link']['element_label_colon'] = FALSE;
   /* Field: Global: Custom text */
   $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['table'] = 'views';
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['label'] = '';
-  $handler->display->display_options['fields']['nothing']['alter']['text'] = 'RSVP Link';
-  $handler->display->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
-  $handler->display->display_options['fields']['nothing']['alter']['path'] = 'node/[nid]?rsvp=[php]';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<a href="[field_invite_rsvp_link] ">RSVP Link</a>';
   $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
   $handler->display->display_options['defaults']['filter_groups'] = FALSE;
   $handler->display->display_options['defaults']['filters'] = FALSE;
