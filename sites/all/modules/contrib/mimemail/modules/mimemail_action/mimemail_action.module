@@ -41,10 +41,7 @@ function mimemail_send_email_action($entity, $context) {
   }
 
   $params = array(
-    'context' => array(
-      'subject' => $context['subject'],
-      'body' => $context['body'],
-    ),
+    'context' => $context,
     'cc' => $context['cc'],
     'bcc' => $context['bcc'],
     'plaintext' => $context['plaintext'],
