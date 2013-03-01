@@ -21,20 +21,37 @@ function invite_init() {
     }
     $_SESSION['invite_id'] = $invite_id;
   }
-  if (arg(0) == 'node' && arg(1) && arg(2) != 'edit') {
-    // do invites exist for this node (i.e., is this node an event)?
-    $invite_count = db_query(
-      "SELECT COUNT(*) 
-        FROM {field_data_field_invite_event} ie
-        INNER JOIN {node} n ON n.vid=ie.revision_id
-        WHERE field_invite_event_target_id=:viewed_nid
-      ;",
-      array(':viewed_nid' => arg(1))
-    )->fetchField();
-    if ($invite_count > 0) {
-      context_set('context', 'invite_count', $invite_count);
+  
+  // set the invite_count context if we're viewing a node with invites
+  invite_page_has_invites();
+}
+
+/**
+ * Tell whether the currently-viewed page has invites, and if so set the invite_count context.
+ */
+function invite_page_has_invites() {
+  static $has_invites;
+  
+  if (!isset($has_invites)) {
+    $has_invites = FALSE;
+    if (arg(0) == 'node' && arg(1) && arg(2) != 'edit') {
+      // do invites exist for this node (i.e., is this node an event)?
+      $invite_count = db_query(
+        "SELECT COUNT(*) 
+          FROM {field_data_field_invite_event} ie
+          INNER JOIN {node} n ON n.vid=ie.revision_id
+          WHERE field_invite_event_target_id=:viewed_nid
+        ;",
+        array(':viewed_nid' => arg(1))
+      )->fetchField();
+      if ($invite_count > 0) {
+        context_set('context', 'invite_count', $invite_count);
+        $has_invites = TRUE;
+      }
     }
   }
+
+  return $has_invites;
 }
 
 /**
