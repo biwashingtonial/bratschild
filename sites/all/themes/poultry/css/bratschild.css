@@ -1,0 +1,14 @@
+@CHARSET "UTF-8";
+
+#header {
+  height: 200px;
+  background: url("../images/belem.jpg") no-repeat scroll left top #272727;
+  padding-left: 360px;
+}
+#logo {
+  display: none;
+}
+#name-and-slogan {
+  float: left;
+  margin-top: 30px;
+}
