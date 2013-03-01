@@ -348,6 +348,10 @@ function invite_token_info() {
     'name' => t('Invite RSVP Link'),
     'description' => t('The RSVP link for an Invite node.'),
   );
+  $items['tokens']['node']['invite-email'] = array(
+    'name' => t('Invite Email Address'),
+    'description' => t('Simple email address (not link) for an Invite.'),
+  );
   return $items;
 }
 
@@ -370,6 +374,9 @@ function invite_tokens($type, $tokens, array $data = array(), array $options = a
               'absolute' => TRUE,
             )
           );
+          break;
+        case 'invite-email':
+          $replacements[$original] = $node->field_invite_email[$node->language][0]['email'];
           break;
       }
     }
