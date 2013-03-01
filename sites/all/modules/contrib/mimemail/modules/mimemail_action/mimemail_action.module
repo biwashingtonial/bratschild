@@ -122,6 +122,7 @@ function mimemail_send_email_action_form($context) {
  * Validate the action form.
  */
 function mimemail_send_email_action_validate($form, $form_state) {
+/*
   $to = trim($form_state['values']['to']);
   if (!valid_email_address($to) && strpos($to, ':mail') === FALSE) {
     form_set_error('to', t('Enter a valid email address or use a token e-mail address such as %author.', array('%author' => '[node:author:mail]')));
@@ -142,6 +143,7 @@ function mimemail_send_email_action_validate($form, $form_state) {
       form_set_error('bcc', t('Enter a valid email address or use a token e-mail address such as %author.', array('%author' => '[node:author:mail]')));
     }
   }
+*/
 }
 
 /**
