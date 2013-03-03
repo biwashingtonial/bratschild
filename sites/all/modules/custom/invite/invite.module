@@ -46,6 +46,7 @@ function invite_page_has_invites() {
       )->fetchField();
       if ($invite_count > 0) {
         context_set('context', 'invite_count', $invite_count);
+        context_set('context', 'invite_event_nid', arg(1));
         $has_invites = TRUE;
       }
     }
@@ -226,7 +227,7 @@ function invite_rsvp_form($form, $form_state, $invite) {
           '#title' => t('Notes to Hosts'),
           '#type' => 'textarea',
           '#rows' => 2,
-          '#description' => t('Anything you want us to know?'),
+          '#description' => t('Anything you want us to know? Please note whether anyone in your party has food allergies, special seating needs, or other requests.'),
         ),
       ),
     ),
