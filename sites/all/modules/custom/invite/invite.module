@@ -63,6 +63,10 @@ function invite_block_info() {
     'info' => t('User RSVP'),
     'cache' => DRUPAL_CACHE_PER_USER,
   );
+  $blocks['comment_form'] = array(
+    'info' => t('Add Comment Form'),
+    'cache' => DRUPAL_CACHE_PER_PAGE,
+  );
   return $blocks;
 }
 
@@ -72,7 +76,8 @@ function invite_block_info() {
 function invite_block_view($delta = '') {
   switch ($delta) {
     case 'rsvp':
-      if (arg(0) == 'node' && arg(1) && ($node = node_load(arg(1)))) {
+      if ($event_nid = context_get('context', 'invite_event_nid')) {
+        $node = node_load($event_nid);
         if (isset($_SESSION['invite_id'])) {
           $invite_node = node_load($_SESSION['invite_id']);
         }
@@ -87,7 +92,19 @@ function invite_block_view($delta = '') {
       }
       else {
         return array(
-          'content' => t('Not viewing a node.'),
+          'content' => t('Not viewing an event.'),
+        );
+      }
+    case 'comment_form':
+      if ($event_nid = context_get('context', 'invite_event_nid')) {
+        return array(
+          'subject' => t('Leave a Comment'),
+          'content' => drupal_get_form('invite_comment_form', $event_nid),
+        );
+      }
+      else {
+        return array(
+          'content' => t('Not viewing an event.'),
         );
       }
   }
@@ -236,7 +253,7 @@ function invite_rsvp_form($form, $form_state, $invite) {
     '#title' => t('Comment to Everyone'),
     '#type' => 'textarea',
     '#rows' => 2,
-    '#description' => t('Want to share anything with the crowd?'),
+    '#description' => t('Why not share something with the crowd? Anything you write here will appear in the Peanut Gallery.'),
   );
   $form['submit'] = array(
     '#type' => 'submit',
@@ -253,7 +270,105 @@ function invite_rsvp_form_submit($form, &$form_state) {
   $invite->revision = 1;  // create new revision
   node_save($invite);
   
-  //@TODO: process $form_state['values']['peanut_gallery']
+  // save Comment if one was left for the Peanut Gallery
+  if (!empty($form_state['values']['peanut_gallery'])) {
+    invite_add_comment(
+      $invite->field_invite_event[$invite->language][0]['target_id'],
+      $invite->field_invite_name_first[$invite->language][0]['value'] . ' ' . $invite->field_invite_name_last[$invite->language][0]['value'],
+      $invite->field_invite_email[$invite->language][0]['email'],
+      $form_state['values']['peanut_gallery']
+    );
+  }
+}
+
+/**
+ * Form builder for a new comment.
+ */
+function invite_comment_form($form, $form_state, $parent_nid) {
+  $form['#parent_nid'] = $parent_nid;
+  $form['name'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Your name'),
+    '#required' => TRUE,
+  );
+  $form['email'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Your email address'),
+    '#description' => t("This is for our reference. It won't be published or shared."),
+    '#required' => TRUE,
+  );
+  $form['body'] = array(
+    '#type' => 'textarea',
+    '#rows' => 3,
+    '#title' => t('Your comment'),
+    '#required' => TRUE,
+  );
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Share Your Comment!'),
+  );
+  return $form;
+}
+
+function invite_comment_form_submit($form, &$form_state) {
+  invite_add_comment(
+    $form['#parent_nid'], 
+    $form_state['values']['name'],
+    $form_state['values']['email'],
+    $form_state['values']['body']
+  );
+}
+
+/**
+ * Implements hook_mollom_form_list().
+ */
+function invite_mollom_form_list() {
+  $forms['invite_comment_form'] = array(
+    'title' => t('Leave a Comment form'),
+  );
+  return $forms;
+}
+
+/**
+ * Implements hook_mollom_form_info().
+ */
+function invite_mollom_form_info($form_id) {
+  switch($form_id) {
+    case 'invite_comment_form':
+      return array(
+        'mode' => MOLLOM_MODE_ANALYSIS,
+        'bypass access' => array('edit any comment content'),
+        'elements' => array(
+          'body' => t('Comment Body'),
+          'name' => t('Commenter Name'),
+          'email' => t('Commenter Email Address'),
+        ),
+        'mapping' => array(
+          'author_name' => 'name',
+          'author_mail' => 'email',
+        ),
+      );
+  }
+}
+
+/**
+ * Utility function to create a new comment node.
+ */
+function invite_add_comment($parent_nid, $name, $email, $body) {
+  $comment = array(
+    'type' => 'comment',
+    'title' => '-',  // auto_nodetitle handles this
+    'status' => 1,
+    'language' => 'und',
+  );
+  $comment['body']['und'][0]['value'] = $body;
+  $comment['body']['und'][0]['format'] = 'plain_text';
+  $comment['field_comment_node']['und'][0]['target_id'] = $parent_nid;
+  $comment['field_comment_name']['und'][0]['value'] = $name;
+  $comment['field_comment_email']['und'][0]['email'] = $email;
+  $comment = (object) $comment;
+  
+  node_save($comment);
 }
 
 /**

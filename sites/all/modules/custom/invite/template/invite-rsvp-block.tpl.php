@@ -17,6 +17,6 @@
   
 <?php else : ?>
   <h3>You're <?php if ($rsvp == 'regrets') print 'Not '?>Attending.</h3>
-  <p>Thank you for your RSVP.</p>
+  <p>Thank you for your RSVP!</p>
 
 <?php endif; ?>
