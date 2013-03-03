@@ -92,8 +92,8 @@
   .sidebar-first #content {
     /* Span 2 columns, starting in 2nd column from left. */
     float: left;
-    width: 75%;
-    margin-left: 25%;
+    width: 65%;
+    margin-left: 35%;
     margin-right: -100%;
     padding-left: 20px;
     padding-right: 20px;
@@ -107,9 +107,9 @@
   .sidebar-first .region-sidebar-first {
     /* Span 1 column, starting in 1st column from left. */
     float: left;
-    width: 25%;
+    width: 35%;
     margin-left: 0%;
-    margin-right: -25%;
+    margin-right: -35%;
     padding-left: 20px;
     padding-right: 20px;
     -moz-box-sizing: border-box;
@@ -272,8 +272,8 @@
   .sidebar-first #content {
     /* Span 4 columns, starting in 2nd column from left. */
     float: left;
-    width: 75%;
-    margin-left: 25%;
+    width: 65%;
+    margin-left: 35%;
     margin-right: -100%;
     padding-left: 20px;
     padding-right: 20px;
@@ -287,9 +287,9 @@
   .sidebar-first .region-sidebar-first {
     /* Span 1 column, starting in 1st column from left. */
     float: left;
-    width: 25%;
+    width: 35%;
     margin-left: 0%;
-    margin-right: -25%;
+    margin-right: -35%;
     padding-left: 20px;
     padding-right: 20px;
     -moz-box-sizing: border-box;
