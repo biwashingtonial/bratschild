@@ -668,7 +668,7 @@ function invite_views_default_views() {
   $handler->display->display_options['empty']['php']['table'] = 'views';
   $handler->display->display_options['empty']['php']['field'] = 'php';
   $handler->display->display_options['empty']['php']['empty'] = TRUE;
-  $handler->display->display_options['empty']['php']['php_output'] = '<?php l("Add the first comment! >", \'node/add/comment\') ?>';
+  $handler->display->display_options['empty']['php']['php_output'] = '<?php print l("Add the first comment! >", \'node/\' . arg(1) . \'/comments\') ?>';
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Content: Body */
   $handler->display->display_options['fields']['body']['id'] = 'body';
@@ -695,7 +695,7 @@ function invite_views_default_views() {
   $handler->display->display_options['fields']['field_comment_name']['field'] = 'field_comment_name';
   $handler->display->display_options['fields']['field_comment_name']['label'] = '';
   $handler->display->display_options['fields']['field_comment_name']['alter']['alter_text'] = TRUE;
-  $handler->display->display_options['fields']['field_comment_name']['alter']['text'] = 'from <span class="invite-comment-name">[field_comment_name]</span>, <span class="invite-comment-time">[created]</span>';
+  $handler->display->display_options['fields']['field_comment_name']['alter']['text'] = '<span class="invite-comment-name">[field_comment_name]</span>, <span class="invite-comment-time">[created]</span>';
   $handler->display->display_options['fields']['field_comment_name']['element_label_colon'] = FALSE;
   $handler->display->display_options['fields']['field_comment_name']['type'] = 'text_plain';
   $handler->display->display_options['defaults']['arguments'] = FALSE;

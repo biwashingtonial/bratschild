@@ -1,5 +1,8 @@
 @CHARSET "UTF-8";
 
+/**
+ * Masthead
+ */
 #header {
   height: 200px;
   background: url("../images/belem.jpg") no-repeat scroll left top #272727;
@@ -11,4 +14,80 @@
 #name-and-slogan {
   float: left;
   margin-top: 30px;
+}
+
+/**
+ * General style overrides
+ */
+#main #content article,
+#main #content nav,
+#main .region-sidebar-first,
+{
+	font-size: 0.9em;
+}
+#main .form-item .description {
+	font-size: 0.9em;
+}
+.form-submit, input[type="submit"] {
+	font-size: 1.4em;
+}
+
+/**
+ * Sidebars: Recent Comments
+ */
+#main .sidebars .view-invite-comment .views-row {
+	margin: 1em 0 1.5em;
+}
+#main .sidebars .view-invite-comment .views-field-body {
+	background: url(../images/comment-block-comment-bg.png) bottom left no-repeat;
+	padding: 10px 15px 27px;
+}
+#main .sidebars .view-invite-comment .views-field-field-comment-name {
+	text-align: right;
+	line-height: 0.8em;
+	color: #456;
+}
+#main .sidebars .view-invite-comment .view-content p {
+	margin: 0.6em 0;
+}
+#main .sidebars .view-invite-comment .view-footer,
+#main .sidebars .view-invite-comment .view-empty {
+	margin-top: 0.8em;
+}
+
+/**
+ * Sidebars: RSVP Form
+ */
+#invite-rsvp-form .form-item input[type="text"] {
+	width: 92%;
+}
+
+/**
+ * RSVPs page
+ */
+#main #content .view-invite h3 {
+	margin-bottom: 0.9em;
+}
+#main #content .view-invite table.views-table {
+	margin-top: 0;
+	line-height: 1.2em;
+}
+
+/**
+ * Peanut Gallery
+ */
+#main #content .view-invite-comment .views-row {
+  margin: 1em 0 1.5em;
+}
+#main #content .view-invite-comment .views-field-body {
+  background: url(../images/comment-page-comment-bg.png) bottom left no-repeat;
+  padding: 10px 15px 27px;
+}
+#main #content .view-invite-comment .views-field-field-comment-name {
+  margin-left: 60px;
+  line-height: 0.8em;
+  color: #456;
+}
+#main #content .view-invite-comment .view-content p {
+  margin: 0.6em 0;
 }
