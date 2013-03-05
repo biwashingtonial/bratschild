@@ -204,7 +204,7 @@ function invite_rsvp_form($form, $form_state, $invite) {
         'value' => array(
           '#title' => t('How Many Coming?'),
           '#type' => 'textfield',
-          '#default_value' => empty($invite->field_invite_attendee_count) ? 1 : $invite->field_invite_attendee_count[$invite->language][0]['value'],
+          '#default_value' => empty($invite->field_invite_attendee_count) ? '' : $invite->field_invite_attendee_count[$invite->language][0]['value'],
           '#required' => TRUE,
         ),
       ),
