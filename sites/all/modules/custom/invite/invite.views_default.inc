@@ -322,11 +322,6 @@ function invite_views_default_views() {
   $handler->display->display_options['defaults']['row_plugin'] = FALSE;
   $handler->display->display_options['defaults']['row_options'] = FALSE;
   $handler->display->display_options['defaults']['header'] = FALSE;
-  /* Header: Global: Unfiltered text */
-  $handler->display->display_options['header']['area_text_custom']['id'] = 'area_text_custom';
-  $handler->display->display_options['header']['area_text_custom']['table'] = 'views';
-  $handler->display->display_options['header']['area_text_custom']['field'] = 'area_text_custom';
-  $handler->display->display_options['header']['area_text_custom']['content'] = 'Attending';
   $handler->display->display_options['defaults']['relationships'] = FALSE;
   $handler->display->display_options['defaults']['fields'] = FALSE;
   /* Field: Bulk operations: Content */
@@ -536,6 +531,20 @@ function invite_views_default_views() {
   $handler->display->display_options['filters']['type']['field'] = 'type';
   $handler->display->display_options['filters']['type']['value'] = array(
     'invite' => 'invite',
+  );
+  /* Filter criterion: Content: RSVP (field_invite_rsvp) */
+  $handler->display->display_options['filters']['field_invite_rsvp_value']['id'] = 'field_invite_rsvp_value';
+  $handler->display->display_options['filters']['field_invite_rsvp_value']['table'] = 'field_data_field_invite_rsvp';
+  $handler->display->display_options['filters']['field_invite_rsvp_value']['field'] = 'field_invite_rsvp_value';
+  $handler->display->display_options['filters']['field_invite_rsvp_value']['exposed'] = TRUE;
+  $handler->display->display_options['filters']['field_invite_rsvp_value']['expose']['operator_id'] = 'field_invite_rsvp_value_op';
+  $handler->display->display_options['filters']['field_invite_rsvp_value']['expose']['label'] = 'RSVP Status';
+  $handler->display->display_options['filters']['field_invite_rsvp_value']['expose']['operator'] = 'field_invite_rsvp_value_op';
+  $handler->display->display_options['filters']['field_invite_rsvp_value']['expose']['identifier'] = 'field_invite_rsvp_value';
+  $handler->display->display_options['filters']['field_invite_rsvp_value']['expose']['multiple'] = TRUE;
+  $handler->display->display_options['filters']['field_invite_rsvp_value']['expose']['remember_roles'] = array(
+    2 => '2',
+    1 => 0,
   );
   $handler->display->display_options['path'] = 'node/%/invites';
   $handler->display->display_options['menu']['type'] = 'tab';
