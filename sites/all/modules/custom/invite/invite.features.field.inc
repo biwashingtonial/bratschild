@@ -789,6 +789,7 @@ function invite_field_default_fields() {
       'settings' => array(
         'allowed_values' => array(
           'planned' => 'Planned',
+          'ready' => 'Ready to Notify',
           'notified' => 'Notified',
           'responded' => 'Responded',
           'attending' => 'Attending',
