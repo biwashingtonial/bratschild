@@ -81,13 +81,17 @@ function invite_block_view($delta = '') {
         if (isset($_SESSION['invite_id'])) {
           $invite_node = node_load($_SESSION['invite_id']);
         }
+        $content = array(
+          '#theme' => 'invite_rsvp_block',
+          '#event' => $node,
+        );
+        if (isset($invite_node)) {
+          $content['#invite'] = $invite_node;
+          $content['#form'] = drupal_get_form('invite_rsvp_form', $invite_node);
+        }
         return array(
           'subject' => t('My RSVP'),
-          'content' => array(
-            '#theme' => 'invite_rsvp_block',
-            '#event' => $node,
-            '#invite' => isset($invite_node) ? $invite_node : NULL,
-          ),
+          'content' => $content,
         );
       }
       else {
@@ -122,6 +126,7 @@ function invite_theme($existing, $type, $theme, $path) {
         'rsvp' => NULL,
         'invite_name' => NULL,
         'form' => NULL,
+        'rsvp_received' => FALSE,
         'different_event' => TRUE,
       ),
       'template' => 'invite-rsvp-block',
@@ -142,9 +147,7 @@ function template_preprocess_invite_rsvp_block(&$variables) {
         $invite->field_invite_name_first[$invite->language][0]['value'] . ' '
         . $invite->field_invite_name_last[$invite->language][0]['value']
       ;
-      if ($variables['rsvp'] != 'attending' && $variables['rsvp'] != 'regrets') {
-        $variables['form'] = drupal_get_form('invite_rsvp_form', $variables['invite']);
-      }
+      $variables['rsvp_received'] = ($variables['rsvp'] != 'attending' && $variables['rsvp'] != 'regrets');
       $variables['different_event'] = FALSE;
     }
     else {

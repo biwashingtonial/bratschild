@@ -11,7 +11,7 @@
   <h3>To RSVP</h3>
   <p>If you received an invitation email <em>for this event</em>, use the link in that email to view the RSVP form.</p>
 
-<?php elseif ($form) : ?>
+<?php elseif ($rsvp_received) : ?>
   <h3>Please RSVP!</h3>
   <?php print render($form); ?>
   
