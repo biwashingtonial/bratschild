@@ -32,6 +32,7 @@ features[field][] = node-invite-field_invite_event
 features[field][] = node-invite-field_invite_host_notes
 features[field][] = node-invite-field_invite_name_first
 features[field][] = node-invite-field_invite_name_last
+features[field][] = node-invite-field_invite_personal_message
 features[field][] = node-invite-field_invite_rsvp
 features[field][] = node-invite-field_invite_rsvp_link
 features[field][] = node-invite-field_invite_rsvp_notes

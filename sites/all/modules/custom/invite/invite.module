@@ -161,6 +161,13 @@ function template_preprocess_invite_rsvp_block(&$variables) {
  */
 function invite_rsvp_form($form, $form_state, $invite) {
   $form['#invite'] = $invite;
+  if (!empty($invite->field_invite_personal_message)) {
+    $form['personal_message'] = array(
+      '#type' => 'item',
+      '#title' => t('A message from us:'),
+      '#markup' => $invite->field_invite_personal_message[$invite->language][0]['value'],
+    );
+  }
   $form['field_invite_name_first'] = array(
     '#tree' => TRUE,
     $invite->language => array(
@@ -220,7 +227,7 @@ function invite_rsvp_form($form, $form_state, $invite) {
         'email' => array(
           '#title' => t('Best Email For You'),
           '#type' => 'textfield',
-          '#default_value' => $invite->field_invite_email[$invite->language][0]['email'],
+          '#default_value' => empty($invite->field_invite_email) ? '' : $invite->field_invite_email[$invite->language][0]['email'],
           '#required' => TRUE,
         ),
       ),
