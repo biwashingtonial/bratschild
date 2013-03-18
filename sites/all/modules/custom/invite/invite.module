@@ -478,6 +478,10 @@ function invite_token_info() {
     'name' => t('Invite Email Address'),
     'description' => t('Simple email address (not link) for an Invite.'),
   );
+  $items['tokens']['node']['invite-personal-message'] = array(
+    'name' => t('Invite Personal Message'),
+    'description' => t('Plain-text personal message to invitee. May be empty but will always be replaced.'),
+  );
   return $items;
 }
 
@@ -503,6 +507,11 @@ function invite_tokens($type, $tokens, array $data = array(), array $options = a
           break;
         case 'invite-email':
           $replacements[$original] = $node->field_invite_email[$node->language][0]['email'];
+          break;
+        case 'invite-personal-message':
+          $replacements[$original] = empty($node->field_invite_personal_message) ?
+            '' : $node->field_invite_personal_message[$node->language][0]['value']
+          ;
           break;
       }
     }
