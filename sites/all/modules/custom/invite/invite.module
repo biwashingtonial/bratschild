@@ -274,6 +274,16 @@ function invite_rsvp_form($form, $form_state, $invite) {
   return $form;
 }
 
+function invite_rsvp_form_validate($form, &$form_state) {
+  $language = $form['#invite']->language;
+  if (
+    !empty($form_state['values']['field_invite_attendee_count'][$language][0]['value'])
+    && !ctype_digit(strval(is_numeric($form_state['values']['field_invite_attendee_count'][$language][0]['value'])))
+  ) {
+    form_set_error("field_invite_attendee_count][$language][0][value", t('How Many Coming needs to be a simple whole number.'));
+  }
+}
+
 function invite_rsvp_form_submit($form, &$form_state) {
   // save invite data to node
   $invite = (object) array_merge((array) $form['#invite'], $form_state['values']);
