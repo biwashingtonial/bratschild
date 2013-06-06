@@ -22,6 +22,10 @@ function invite_init() {
     $_SESSION['invite_id'] = $invite_id;
   }
   
+  if (isset($_SESSION['invite_id']) && $invite = node_load($_SESSION['invite_id'])) {
+    context_set('context', 'invite_invite', $invite);
+  }
+  
   // set the invite_count context if we're viewing a node with invites
   invite_page_has_invites();
 }
