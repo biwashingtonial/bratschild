@@ -488,6 +488,10 @@ function invite_token_info() {
     'name' => t('Invite RSVP Link'),
     'description' => t('The RSVP link for an Invite node.'),
   );
+  $items['tokens']['node']['invite-photo-upload-link'] = array(
+    'name' => t('Personal Photo Upload Link'),
+    'description' => t('The personalized link for uploading a photo (requires Photo Gallery feature).'),
+  );
   $items['tokens']['node']['invite-email'] = array(
     'name' => t('Invite Email Address'),
     'description' => t('Simple email address (not link) for an Invite.'),
@@ -513,6 +517,15 @@ function invite_tokens($type, $tokens, array $data = array(), array $options = a
         case 'invite-rsvp-link':
           $replacements[$original] = url(
             'node/' . $node->field_invite_event[$node->language][0]['target_id'],
+            array(
+              'query' => array('rsvp' => _invite_id_encode($node->nid)),
+              'absolute' => TRUE,
+            )
+          );
+          break;
+        case 'invite-photo-upload-link':
+          $replacements[$original] = url(
+            'node/add/photo',
             array(
               'query' => array('rsvp' => _invite_id_encode($node->nid)),
               'absolute' => TRUE,

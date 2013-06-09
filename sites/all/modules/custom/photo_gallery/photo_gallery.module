@@ -17,6 +17,9 @@ function photo_gallery_menu_alter(&$items) {
  * Access callback for node/add/photo
  */
 function photo_gallery_add_access($op = 'add', $type = 'photo') {
+  // give invite.module a chance to check for an invite first
+  invite_init();
+
   // allow access for anonymous user "logged in" via invite
   if (isset($_SESSION['invite_id']) && node_load($_SESSION['invite_id'])) {
     return TRUE;
